@@ -15,9 +15,15 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Refurbished Inventory API")
 
+origins = [
+    "http://192.168.88.31:3000",  # your frontend
+    "http://localhost:3000",      # local dev
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,  # or ["*"] for testing
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
