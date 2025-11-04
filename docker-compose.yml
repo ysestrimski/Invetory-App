@@ -20,7 +20,7 @@ services:
       - db
     env_file: .env
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - ./backend:/app
       - ./uploads:/app/uploads
@@ -33,13 +33,13 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_API_URL=http://localhost:8001
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - "8080:8080"
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - "8080:8080"
 
 volumes:
   db-data:
