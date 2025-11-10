@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const api = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const api = process.env.REACT_APP_API_URL || "http://localhost:8001";
 
 function App() {
   const [items, setItems] = useState([]);
