@@ -83,3 +83,17 @@ def upload_image(item_id: int, file: UploadFile = File(...), db=Depends(get_db))
     db.add(item)
     db.commit()
     return {"image_path": item.image_path}
+
+
+@app.delete("/items/{item_id}")
+def delete_item(item_id: int):
+    conn = sqlite3.connect("inventory.db")
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM items WHERE id = ?", (item_id,))
+    conn.commit()
+    conn.close()
+
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return {"message": "Item deleted successfully"}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const api = process.env.REACT_APP_API_URL || "http://192.168.88.31:8001";
+const api = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 function App() {
   const [items, setItems] = useState([]);
@@ -12,8 +12,13 @@ function App() {
     quantity: 0,
   });
 
+  const loadItems = async () => {
+    const res = await fetch(`${api}/items`);
+    setItems(await res.json());
+  };
+
   useEffect(() => {
-    fetch(`${api}/items`).then(r => r.json()).then(setItems);
+    loadItems();
   }, []);
 
   const add = async () => {
@@ -22,13 +27,18 @@ function App() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
-    const res = await fetch(`${api}/items`);
-    setItems(await res.json());
+    await loadItems();
+  };
+
+  const remove = async (id) => {
+    await fetch(`${api}/items/${id}`, { method: "DELETE" });
+    await loadItems();
   };
 
   return (
     <div style={{ padding: 20, fontFamily: "Arial" }}>
       <h1>Refurbished Laptop Inventory</h1>
+
       <div style={{ display: "flex", gap: "5px", marginBottom: "10px" }}>
         <input placeholder="SKU" onChange={e=>setForm({...form, sku:e.target.value})}/>
         <input placeholder="Model" onChange={e=>setForm({...form, model:e.target.value})}/>
@@ -37,9 +47,10 @@ function App() {
         <input type="number" placeholder="Qty" onChange={e=>setForm({...form, quantity:parseInt(e.target.value)||0})}/>
         <button onClick={add}>Add</button>
       </div>
+
       <table border="1" cellPadding="8">
         <thead>
-          <tr><th>SKU</th><th>Brand</th><th>Model</th><th>Price</th><th>Qty</th></tr>
+          <tr><th>SKU</th><th>Brand</th><th>Model</th><th>Price</th><th>Qty</th><th>Actions</th></tr>
         </thead>
         <tbody>
           {items.map(it => (
@@ -49,6 +60,7 @@ function App() {
               <td>{it.model}</td>
               <td>${it.price}</td>
               <td>{it.quantity}</td>
+              <td><button onClick={() => remove(it.id)}>🗑️ Delete</button></td>
             </tr>
           ))}
         </tbody>
@@ -56,4 +68,5 @@ function App() {
     </div>
   );
 }
+
 export default App;
