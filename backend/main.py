@@ -1,4 +1,4 @@
-import os, uuid, sqlite3
+import os, uuid
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
@@ -85,27 +85,13 @@ def upload_image(item_id: int, file: UploadFile = File(...), db=Depends(get_db))
     return {"image_path": item.image_path}
 
 
+
+
 @app.delete("/items/{item_id}")
-def delete_item(item_id: int):
-    conn = sqlite3.connect("inventory.db")
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM items WHERE id = ?", (item_id,))
-    conn.commit()
-    conn.close()
-
-    if cursor.rowcount == 0:
+def delete_item(item_id: int, db=Depends(get_db)):
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
         raise HTTPException(status_code=404, detail="Item not found")
-
+    db.delete(item)
+    db.commit()
     return {"message": "Item deleted successfully"}
-
-
-@app.get("/items/{item_id}")
-def get_item(item_id: int):
-    conn = sqlite3.connect("inventory.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM items WHERE id = ?", (item_id,))
-    row = cursor.fetchone()
-    conn.close()
-    if not row:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return {"id": row[0], "sku": row[1], "model": row[2], "brand": row[3], "price": row[4], "quantity": row[5]}
