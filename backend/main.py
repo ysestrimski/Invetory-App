@@ -1,4 +1,4 @@
-import os, uuid
+import os, uuid, sqlite3
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
@@ -97,3 +97,15 @@ def delete_item(item_id: int):
         raise HTTPException(status_code=404, detail="Item not found")
 
     return {"message": "Item deleted successfully"}
+
+
+@app.get("/items/{item_id}")
+def get_item(item_id: int):
+    conn = sqlite3.connect("inventory.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM items WHERE id = ?", (item_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"id": row[0], "sku": row[1], "model": row[2], "brand": row[3], "price": row[4], "quantity": row[5]}
